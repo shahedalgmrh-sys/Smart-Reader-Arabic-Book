@@ -1,0 +1,84 @@
+# Android
+*.apk
+*.ap_
+*.aab
+
+# Gradle
+.gradle/
+build/
+
+# Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Local configuration files
+local.properties
+
+# Log files
+*.log
+
+# Keystore files
+*.jks
+*.keystore
+
+# Generated files
+bin/
+gen/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build outputs
+app/build/
+
+# Database files
+*.db
+*.sqlite
+
+# Environment files
+.env
+.env.local
+
+# Large media files
+*.mp3
+*.wav
+*.mp4
+
+# Python virtual environment
+.venv/
+venv/
+
+# Node modules
+node_modules/
+
+# Documentation files (keep only essential ones)
+!README.md
+!LICENSE
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE specific
+.vscode/
+.idea/
+
+# Gradle wrapper (should be committed)
+!gradle/wrapper/gradle-wrapper.jar
+
+# Exclude large audio folders but keep structure
+abtalislam/**/*.wav
+abtalislam/**/*.mp3
+
+# Keep text and metadata files
+!abtalislam/**/*.txt
+!abtalislam/**/*.ass
+!abtalislam/**/metadata.txt
