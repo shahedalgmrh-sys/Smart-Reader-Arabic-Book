@@ -1,0 +1,41 @@
+erDiagram
+    User {
+        int user_id PK
+        string nick_name
+        datetime created_at
+        string device_id UK
+    }
+
+    AudioBook {
+        int audio_id PK
+        string file_path
+        int duration
+        datetime created_at
+        string checksum UK
+    }
+
+    PdfBook {
+        int pdf_book_id PK
+        int audio_id FK
+        int user_id FK
+        string book_pdf_name
+        string book_pdf_author
+        string cover_image
+        string file_checksum
+        text content
+        text description
+        datetime created_at
+    }
+
+    Position {
+        int user_id PK,FK
+        int pdf_book_id PK,FK
+        int last_position_id
+        datetime created_at
+        datetime upload_at
+    }
+
+    User ||--o{ PdfBook : owns
+    AudioBook ||--o{ PdfBook : linked_to
+    User ||--o{ Position : has
+    PdfBook ||--o{ Position : tracks

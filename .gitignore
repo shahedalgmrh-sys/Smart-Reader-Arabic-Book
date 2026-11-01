@@ -1,84 +1,109 @@
-# Android
-*.apk
-*.ap_
-*.aab
+# ============================================================
+# Smart Reader Arabic Book - Git Ignore
+# جذر المشروع: يستبعد الملفات الضخمة والبيانات الشخصية والملفات المؤقتة
+# ============================================================
 
-# Gradle
-.gradle/
-build/
+# ---------- مقطوعات النموذج (Checkpoints) والأرشيف: ضخمة جداً ----------
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.rar
+*.zip
 
-# Android Studio
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# Local configuration files
-local.properties
-
-# Log files
-*.log
-
-# Keystore files
-*.jks
-*.keystore
-
-# Generated files
-bin/
-gen/
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Build outputs
-app/build/
-
-# Database files
+# ---------- قواعد البيانات والسجلات ----------
 *.db
 *.sqlite
+*.log
+hs_err_pid*
+app.log
 
-# Environment files
-.env
-.env.local
-
-# Large media files
-*.mp3
-*.wav
-*.mp4
-
-# Python virtual environment
+# ---------- البيئات الافتراضية ----------
 .venv/
 venv/
+**/venv/
+**/.venv/
 
-# Node modules
-node_modules/
+# ---------- التخزين المؤقت للملفات المنفذة عبر الإنترنت (Caches) ----------
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
 
-# Documentation files (keep only essential ones)
-!README.md
-!LICENSE
-
-# Temporary files
-*.tmp
-*.temp
-
-# IDE specific
+# ---------- إعدادات التحرير والبيئات ----------
+.trae/
 .vscode/
 .idea/
+*.iml
+app.code-workspace
 
-# Gradle wrapper (should be committed)
-!gradle/wrapper/gradle-wrapper.jar
+# ---------- ملفات السرية وبيانات الاعتماد ----------
+.env
+.env.*
+!.env.example
 
-# Exclude large audio folders but keep structure
-abtalislam/**/*.wav
-abtalislam/**/*.mp3
+# ---------- خاص بـ Android ----------
+ReaderARBICBook/.gradle/
+ReaderARBICBook/build/
+ReaderARBICBook/app/build/
+ReaderARBICBook/local.properties
+ReaderARBICBook/.idea/
+ReaderARBICBook/captures/
+*.apk
+*.aab
 
-# Keep text and metadata files
-!abtalislam/**/*.txt
-!abtalislam/**/*.ass
-!abtalislam/**/metadata.txt
+# ---------- ملفات مستوري الجذر الذاتية (وليست جزءاً من الكود) ----------
+# بيانات الإنتاج والتدريب الضخمة (الجدة - 46GB) نقاط الحفظ
+training_data/*
+!training_data/albaraa_config.yaml
+# عناصر التدريب الصوتية (شجار الترنيين)
+abtalislam/
+# فحص النموذج - نقط الأواشر فقط وليس كوداً
+API_modelAI/
+# مستودع مصادر الطرف الثالث - تنصلده المشروع عبر git clone (اقرأ README)
+API_Database_Gradution_project/third_party/
+# مخرجات الصوت والكتب المرفوعة والأرشيف
+API_Database_Gradution_project/generated_audio/
+API_Database_Gradution_project/uploaded_books/
+API_Database_Gradution_project/uploaded_covers/
+API_Database_Gradution_project/archive/
+
+# ---------- مستندات الجذر الشخصية (تقرير التخرج ومرفقاته) ----------
+/*.docx
+/*.rtf
+/*.pdf
+/WhatsApp*.jpeg
+/another.jpeg
+/another1.png
+/Table User {.txt
+/bookreader.sql
+
+# ---------- سكربتات مساعدة ذات استعمال واحد عند الجذر ----------
+/_docx_*.py
+update_docx_add_missing_sections.py
+analyze_pdf_standards.py
+extract_pdf_standards.py
+check_databases.py
+academic_standards_analysis.md
+complete_pdf_standards.txt
+pdf_standards_*.json
+pdf_standards_text.txt
+detailed_pdf_analysis.json
+
+# ---------- سكربات مساعدات ذات استعمال واحد داخل الخادم الخلفي ----------
+API_Database_Gradution_project/check_env.py
+API_Database_Gradution_project/check_pypdf.py
+API_Database_Gradution_project/debug_books.py
+API_Database_Gradution_project/reproduce_tts.py
+API_Database_Gradution_project/test_flow.py
+API_Database_Gradution_project/test_docx.py
+API_Database_Gradution_project/sample.docx
+API_Database_Gradution_project/*.db
+
+# تقارير التحليل الداخلية (ليست جزءاً من التوثيق المرحوي للعرض)
+/FINAL_PROJECT_ANALYSIS.md
+/ARCHITECTURAL_ANALYSIS_REPORT.md
+/DETAILED_PROJECT_ANALYSIS.md
+
+# ---------- ملف خاص لمستودع Git في الأحياء منظومات تجنبة (backups) ----------
+.git-backup/

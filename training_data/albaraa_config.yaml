@@ -1,0 +1,28 @@
+
+# restore_model: ''
+restore_model: c:\Users\Testing\AndroidStudioProjects\app\training_data\checkpoints\states_4690.pth
+
+log_dir: c:\Users\Testing\AndroidStudioProjects\app\training_data\logs
+checkpoint_dir: c:\Users\Testing\AndroidStudioProjects\app\training_data\checkpoints
+
+# dataset
+train_wavs_path: c:\Users\Testing\AndroidStudioProjects\app\training_data\albaraa\wavs
+train_labels: c:\Users\Testing\AndroidStudioProjects\app\training_data\albaraa\metadata.txt
+
+test_wavs_path: c:\Users\Testing\AndroidStudioProjects\app\training_data\albaraa\wavs
+test_labels: c:\Users\Testing\AndroidStudioProjects\app\training_data\albaraa\metadata.txt
+
+# Use 'arabic' group so the dataset class converts it to phonemes automatically
+label_pattern: '"(?P<filename>.*)" "(?P<arabic>.*)"'
+
+# optimizers
+g_lr: 1.0e-3    # lr for AdamW optimizer (generator)
+g_beta1: 0.9     # beta1 for AdamW optimizer (generator)
+g_beta2: 0.999   # beta2 for AdamW optimizer (generator)
+
+epochs: 5000
+batch_size: 24  # Reduced batch size to prevent OOM
+grad_clip_thresh: 1.0
+
+n_save_states_iter: 100
+n_save_backup_iter: 500

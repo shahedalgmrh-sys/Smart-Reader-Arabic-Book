@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قارئ الكتب الذكي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background-color: #1a1b26; color: #a9b1d6; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-hover:hover { background: rgba(255, 255, 255, 0.1); }
+        input[type="range"] { -webkit-appearance: none; background: transparent; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #7aa2f7; margin-top: -6px; cursor: pointer; }
+        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #414868; border-radius: 2px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="h-16 glass flex items-center justify-between px-6 z-10">
+        <div class="text-xl font-bold text-white"><i class="fas fa-book-reader mr-2"></i> القارئ الذكي</div>
+        <div class="flex items-center space-x-4 space-x-reverse">
+            <div id="status-indicator" class="w-3 h-3 rounded-full bg-green-500"></div>
+            <span class="text-sm">متصل</span>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 glass border-l border-gray-700 flex flex-col">
+            <div class="p-4 border-b border-gray-700">
+                <button onclick="document.getElementById('upload-modal').classList.remove('hidden')" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 transition">
+                    <i class="fas fa-plus ml-2"></i> إضافة كتاب
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-2 space-y-2" id="books-list">
+                <!-- Books will be loaded here -->
+                <div class="text-center text-gray-500 mt-10">جاري التحميل...</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col relative">
+            
+            <!-- Dashboard / Stats -->
+            <div id="dashboard-panel" class="hidden absolute top-4 left-4 z-20 w-80 glass rounded-xl p-4 shadow-xl">
+                <h3 class="text-white font-bold mb-3 border-b border-gray-600 pb-2">إحصائيات الأداء</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span>وقت المعالجة:</span> <span id="stat-time" class="text-green-400">-</span></div>
+                    <div class="flex justify-between"><span>عدد المقاطع:</span> <span id="stat-segments" class="text-blue-400">-</span></div>
+                    <div class="flex justify-between"><span>الحالة:</span> <span id="stat-status" class="text-yellow-400">-</span></div>
+                </div>
+            </div>
+
+            <!-- Book View -->
+            <div id="book-view" class="flex-1 p-8 overflow-y-auto flex items-center justify-center">
+                <div class="text-center max-w-2xl">
+                    <div id="current-cover" class="w-48 h-72 bg-gray-700 rounded-lg mx-auto mb-6 shadow-2xl bg-cover bg-center"></div>
+                    <h1 id="current-title" class="text-3xl font-bold text-white mb-2">اختر كتاباً للبدء</h1>
+                    <p id="current-author" class="text-xl text-gray-400 mb-8">-</p>
+                    
+                    <button id="generate-btn" class="hidden bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full text-lg shadow-lg transition transform hover:scale-105">
+                        <i class="fas fa-wand-magic-sparkles ml-2"></i> توليد الصوت
+                    </button>
+                </div>
+            </div>
+
+            <!-- Player Bar -->
+            <div class="h-24 glass border-t border-gray-700 flex items-center px-6 space-x-6 space-x-reverse">
+                <!-- Info -->
+                <div class="w-1/4 flex items-center space-x-3 space-x-reverse truncate">
+                    <div id="player-cover" class="w-12 h-16 bg-gray-700 rounded bg-cover bg-center"></div>
+                    <div>
+                        <div id="player-title" class="text-white font-medium truncate">لا يوجد تشغيل</div>
+                        <div id="player-author" class="text-xs text-gray-500 truncate">-</div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex-1 flex flex-col items-center">
+                    <div class="flex items-center space-x-6 space-x-reverse mb-2">
+                        <button class="text-gray-400 hover:text-white transition" onclick="seek(-10)"><i class="fas fa-rotate-right"></i> 10s</button>
+                        <button class="text-gray-400 hover:text-white transition" onclick="prevTrack()"><i class="fas fa-step-forward"></i></button>
+                        <button id="play-btn" class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:bg-gray-200 transition" onclick="togglePlay()">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-white transition" onclick="nextTrack()"><i class="fas fa-step-backward"></i></button>
+                        <button class="text-gray-400 hover:text-white transition" onclick="seek(10)">10s <i class="fas fa-rotate-left"></i></button>
+                    </div>
+                    <div class="w-full flex items-center space-x-3 space-x-reverse text-xs text-gray-400">
+                        <span id="current-time">0:00</span>
+                        <input type="range" id="seek-bar" min="0" max="100" value="0" class="flex-1" oninput="onSeek(this.value)">
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Volume -->
+                <div class="w-1/4 flex justify-end items-center space-x-3 space-x-reverse">
+                    <i class="fas fa-volume-up text-gray-400"></i>
+                    <input type="range" min="0" max="1" step="0.1" value="1" class="w-24" oninput="setVolume(this.value)">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
+        <div class="bg-[#1f2335] p-6 rounded-xl w-96 border border-gray-700">
+            <h2 class="text-xl font-bold text-white mb-4">إضافة كتاب جديد</h2>
+            <form id="upload-form" class="space-y-4">
+                <input type="text" name="title" placeholder="عنوان الكتاب" class="w-full bg-[#1a1b26] border border-gray-700 rounded p-2 text-white" required>
+                <input type="text" name="author" placeholder="المؤلف" class="w-full bg-[#1a1b26] border border-gray-700 rounded p-2 text-white" required>
+                <div class="border-dashed border-2 border-gray-600 rounded p-4 text-center cursor-pointer hover:border-blue-500 transition relative">
+                    <span class="text-sm text-gray-400">اختر ملف PDF أو DOCX</span>
+                    <input type="file" name="file" class="absolute inset-0 opacity-0 cursor-pointer" required accept=".pdf,.docx">
+                </div>
+                <!-- Device ID (Hidden/Auto) -->
+                <input type="hidden" name="android_id" value="web-client-v1">
+                
+                <div class="flex space-x-3 space-x-reverse pt-2">
+                    <button type="button" onclick="document.getElementById('upload-modal').classList.add('hidden')" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded">إلغاء</button>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">رفع</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <audio id="audio-player" class="hidden"></audio>
+
+    <script>
+        const API_URL = ""; // Relative
+        const DEVICE_ID = "web-client-v1";
+        
+        // DOM Elements
+        const audio = document.getElementById('audio-player');
+        const playBtn = document.getElementById('play-btn');
+        const seekBar = document.getElementById('seek-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        
+        let currentBookId = null;
+
+        // Init
+        document.addEventListener('DOMContentLoaded', loadBooks);
+
+        // Upload
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.set('android_id', DEVICE_ID); // Ensure it's in form data
+            
+            try {
+                const res = await fetch(`${API_URL}/books`, {
+                    method: 'POST',
+                    headers: { 'X-Device-ID': DEVICE_ID },
+                    body: formData
+                });
+                if (res.ok) {
+                    document.getElementById('upload-modal').classList.add('hidden');
+                    e.target.reset();
+                    loadBooks();
+                    alert('تم رفع الكتاب بنجاح');
+                } else {
+                    alert('فشل الرفع: ' + await res.text());
+                }
+            } catch (err) {
+                alert('خطأ في الاتصال');
+            }
+        });
+
+        // Load Books
+        async function loadBooks() {
+            try {
+                const res = await fetch(`${API_URL}/books`, {
+                    headers: { 'X-Device-ID': DEVICE_ID }
+                });
+                const books = await res.json();
+                const list = document.getElementById('books-list');
+                list.innerHTML = books.map(book => `
+                    <div onclick="selectBook(${book.id})" class="p-3 rounded cursor-pointer hover:bg-[#24283b] transition group flex items-center space-x-3 space-x-reverse">
+                        <div class="w-10 h-14 bg-gray-700 bg-cover bg-center rounded" style="background-image: url('/books/${book.id}/cover')"></div>
+                        <div class="flex-1 overflow-hidden">
+                            <div class="text-white text-sm font-medium truncate">${book.title}</div>
+                            <div class="text-xs text-gray-500 truncate">${book.author}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Select Book
+        async function selectBook(id) {
+            currentBookId = id;
+            try {
+                const res = await fetch(`${API_URL}/books/${id}`, {
+                    headers: { 'X-Device-ID': DEVICE_ID }
+                });
+                const book = await res.json();
+                
+                document.getElementById('current-title').textContent = book.title;
+                document.getElementById('current-author').textContent = book.author;
+                document.getElementById('current-cover').style.backgroundImage = `url('/books/${id}/cover')`;
+                
+                // Update Player Info
+                document.getElementById('player-title').textContent = book.title;
+                document.getElementById('player-author').textContent = book.author;
+                document.getElementById('player-cover').style.backgroundImage = `url('/books/${id}/cover')`;
+
+                const generateBtn = document.getElementById('generate-btn');
+                if (book.audio_path) {
+                    generateBtn.classList.add('hidden');
+                    loadAudio(id);
+                } else {
+                    generateBtn.classList.remove('hidden');
+                    generateBtn.onclick = () => generateAudio(id);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Generate Audio
+        async function generateAudio(id) {
+            const dashboard = document.getElementById('dashboard-panel');
+            dashboard.classList.remove('hidden');
+            document.getElementById('stat-status').textContent = "جاري المعالجة...";
+            
+            const startTime = Date.now();
+            const timer = setInterval(() => {
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                document.getElementById('stat-time').textContent = elapsed + "s";
+            }, 100);
+
+            try {
+                const res = await fetch(`${API_URL}/books/${id}/generate_audio`, {
+                    method: 'POST',
+                    headers: { 'X-Device-ID': DEVICE_ID }
+                });
+                const data = await res.json();
+                
+                if (data.segments_count) {
+                    document.getElementById('stat-segments').textContent = data.segments_count;
+                }
+
+                // Poll for completion (Simple polling for demo)
+                checkStatus(id, timer);
+
+            } catch (err) {
+                clearInterval(timer);
+                alert("Error starting generation");
+            }
+        }
+
+        async function checkStatus(id, timer) {
+            // In a real app, we'd have a status endpoint. Here we'll try to get audio head
+            // Or just wait a bit since the backend is async but doesn't have a status endpoint yet.
+            // Let's just simulate polling by trying to get the book details again.
+            
+            const interval = setInterval(async () => {
+                const res = await fetch(`${API_URL}/books/${id}`, {
+                    headers: { 'X-Device-ID': DEVICE_ID }
+                });
+                const book = await res.json();
+                if (book.audio_path) {
+                    clearInterval(interval);
+                    clearInterval(timer);
+                    document.getElementById('stat-status').textContent = "مكتمل";
+                    document.getElementById('generate-btn').classList.add('hidden');
+                    loadAudio(id);
+                }
+            }, 2000);
+        }
+
+        function loadAudio(id) {
+            audio.src = `${API_URL}/books/${id}/audio?android_id=${DEVICE_ID}`;
+            audio.load();
+            togglePlay(true);
+        }
+
+        // Player Controls
+        function togglePlay(forcePlay = false) {
+            if (audio.paused || forcePlay) {
+                audio.play();
+                playBtn.innerHTML = '<i class="fas fa-pause ml-1"></i>';
+            } else {
+                audio.pause();
+                playBtn.innerHTML = '<i class="fas fa-play ml-1"></i>';
+            }
+        }
+
+        function seek(seconds) {
+            audio.currentTime += seconds;
+        }
+
+        function onSeek(val) {
+            const time = (val / 100) * audio.duration;
+            audio.currentTime = time;
+        }
+
+        function setVolume(val) {
+            audio.volume = val;
+        }
+
+        // Audio Events
+        audio.ontimeupdate = () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            seekBar.value = percent || 0;
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+            durationEl.textContent = formatTime(audio.duration);
+        };
+
+        function formatTime(seconds) {
+            if (!seconds) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function prevTrack() { /* ... */ }
+        function nextTrack() { /* ... */ }
+
+    </script>
+</body>
+</html>
